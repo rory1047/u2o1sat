@@ -1,4 +1,9 @@
 #homeLink {
-    font-size: 40px;
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    text-align: left;
+    z-index: 100;
+    display:block;
     color: white;
 }
