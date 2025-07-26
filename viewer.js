@@ -25,25 +25,35 @@ controls.dampeningFactor = 0.05;
 
 let model;
 
-loader.load(
-    'models/shiba.glb',
+const selector = document.getElementById('modelSelector');
 
-    function (glb) {
-        model = glb.scene
-
-        scene.add(model);
-    },
-    function ( xhr ) {
-
-        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-    },
-    // called when loading has errors
-    function ( error ) {
-
-        console.log('An error happened');
+function loadModel(path) {
+    if (model) {
+        scene.remove(model); // remove old model
     }
-)
+
+    loader.load(
+        path,
+        function (glb) {
+            model = glb.scene;
+            scene.add(model);
+        },
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function (error) {
+            console.log('An error happened:', error);
+        }
+    );
+}
+
+// Initial load
+loadModel(selector.value);
+
+// Change handler
+selector.addEventListener('change', (event) => {
+    loadModel(event.target.value);
+});
 
 
 camera.position.z=2;
