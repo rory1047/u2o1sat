@@ -10,13 +10,11 @@
             margin: 0;
             font-family: Arial, sans-serif;
         }
-
         .container {
             display: flex;
             gap: 20px;
             padding: 20px;
         }
-
         .model-list {
             display: grid;
             grid-template-columns: repeat(4, 100px);
@@ -24,7 +22,6 @@
             overflow-y: auto;
             max-height: 500px;
         }
-
         .model-card {
             width: 100px;
             height: 100px;
@@ -36,17 +33,14 @@
             text-align: center;
             cursor: pointer;
         }
-
         .model-card.empty {
             background-color: #eee;
             pointer-events: none;
         }
-
         .model-card.add-model {
             font-weight: bold;
             font-size: 18px;
         }
-
         .preview-area {
             flex: 1;
             display: flex;
@@ -56,18 +50,15 @@
             padding: 20px;
             min-width: 400px;
         }
-
         #preview {
             flex: 1;
             text-align: center;
         }
-
         #model-name {
             font-weight: bold;
             margin-bottom: 8px;
             font-size: 18px;
         }
-
         #previewCanvas {
             width: 100%;
             height: 300px;
@@ -75,7 +66,6 @@
             background: #f0f0f0;
             border-radius: 8px;
         }
-
         #view-btn {
             margin-top: 20px;
             padding: 10px;
@@ -84,7 +74,6 @@
             border: 2px solid #333;
             cursor: pointer;
         }
-
         #view-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -93,14 +82,15 @@
 </head>
 <body>
 <div class="container">
-    <div class="model-list">
+    <div class="model-list" id="modelList">
         <div class="model-card" data-model="Shiba" data-path="models/shiba.glb">Shiba</div>
         <div class="model-card" data-model="Crab" data-path="models/crab.glb">Crab</div>
-
-        <!-- Format for empty card <div class="model-card empty"></div> -->
-
-        <div class="model-card add-model">+<br/>Add Model</div>
-        <input type="file" id="addModelInput" accept=".glb" style="display: none;" />
+        <!-- Empty cards if needed -->
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+        <!-- Add model button -->
+        <button class="model-card add-model" id="add-model-btn">+<br/>Add Model</button>
+        <input type="file" id="add-model-input" accept=".glb,.gltf" style="display:none" />
     </div>
 
     <div class="preview-area">
@@ -112,78 +102,164 @@
     </div>
 </div>
 
-<script type="module" src="preview.js"></script>
-
 <script type="module">
-    import { loadPreviewModel } from './preview.js';
+    import { saveModel, getAllModels, deleteModel } from './db.js';
+    import { loadPreviewModel } from './preview.js'; // your preview code
 
     const viewBtn = document.getElementById('view-btn');
     const modelNameText = document.getElementById('model-name');
-    const addModelBtn = document.querySelector('.add-model');
-    const addModelInput = document.getElementById('addModelInput');
-    const modelList = document.querySelector('.model-list');
+    const addModelBtn = document.getElementById('add-model-btn');
+    const addModelInput = document.getElementById('add-model-input');
+    const modelList = document.getElementById('modelList');
 
     const uploadedFiles = new Map();
     let selectedModelPath = null;
+    let selectedModelName = null;
 
-    // Attach click listeners to pre-existing models
-    document.querySelectorAll('.model-card:not(.empty):not(.add-model)').forEach(card => {
+    function createRemoveButton() {
+        const btn = document.createElement('button');
+        btn.textContent = '✕';
+        btn.title = 'Remove model';
+        btn.style.position = 'absolute';
+        btn.style.top = '4px';
+        btn.style.right = '4px';
+        btn.style.background = 'rgba(255, 0, 0, 0.7)';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '50%';
+        btn.style.color = 'white';
+        btn.style.cursor = 'pointer';
+        btn.style.fontSize = '14px';
+        btn.style.width = '20px';
+        btn.style.height = '20px';
+        return btn;
+    }
+
+    function setupModelCard(card, isUploaded = false) {
+        card.style.position = 'relative';
+
         card.addEventListener('click', () => {
             selectedModelPath = card.dataset.path;
+            selectedModelName = card.dataset.model;
             loadPreviewModel(selectedModelPath);
             viewBtn.disabled = false;
-            modelNameText.textContent = card.dataset.model;
+            modelNameText.textContent = selectedModelName;
         });
-    });
+
+        if (isUploaded) {
+            const removeBtn = createRemoveButton();
+            card.appendChild(removeBtn);
+
+            removeBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+
+                const modelToDelete = card.dataset.model;
+                if (!modelToDelete) {
+                    alert('Cannot identify model to delete.');
+                    return;
+                }
+
+                if (!confirm(`Are you sure you want to remove "${modelToDelete}"?`)) {
+                    return;
+                }
+
+                try {
+                    await deleteModel(modelToDelete);
+                } catch (err) {
+                    console.error('Error removing model from DB:', err);
+                    alert('Failed to remove model from storage.');
+                    return;
+                }
+
+                uploadedFiles.delete(card.dataset.path);
+                modelList.removeChild(card);
+
+                if (selectedModelName === modelToDelete) {
+                    selectedModelPath = null;
+                    selectedModelName = null;
+                    viewBtn.disabled = true;
+                    modelNameText.textContent = 'Select a model';
+                    loadPreviewModel(null); // Clear preview
+                }
+            });
+        }
+    }
+
+    function setupBuiltInModels() {
+        document.querySelectorAll('.model-card:not(.empty):not(.add-model)').forEach(card => {
+            setupModelCard(card, false);
+        });
+    }
+
+    function addUploadedModelCard(name, objectURL) {
+        const card = document.createElement('div');
+        card.classList.add('model-card');
+        card.dataset.model = name;
+        card.dataset.path = objectURL;
+        card.textContent = name;
+        setupModelCard(card, true);
+
+        modelList.insertBefore(card, addModelBtn);
+    }
+
+    async function loadUploadedModels() {
+        try {
+            const savedModels = await getAllModels();
+            for (const { name, file } of savedModels) {
+                const objectURL = URL.createObjectURL(file);
+                uploadedFiles.set(objectURL, file);
+                addUploadedModelCard(name, objectURL);
+            }
+        } catch (err) {
+            console.error('Failed to load uploaded models:', err);
+        }
+    }
 
     addModelBtn.addEventListener('click', () => {
         addModelInput.click();
     });
 
-    addModelInput.addEventListener('change', (event) => {
+    addModelInput.addEventListener('change', async (event) => {
         const file = event.target.files[0];
-        if (file) {
-            const objectURL = URL.createObjectURL(file);
-            const modelName = file.name.replace(/\.glb$/, '');
-            uploadedFiles.set(objectURL, file);
+        if (!file) return;
 
-            const newCard = document.createElement('div');
-            newCard.classList.add('model-card');
-            newCard.dataset.model = modelName;
-            newCard.dataset.path = objectURL;
-            newCard.textContent = modelName;
+        const modelName = file.name.replace(/\.[^/.]+$/, "");
 
-            modelList.insertBefore(newCard, addModelBtn);
-
-            newCard.addEventListener('click', () => {
-                selectedModelPath = newCard.dataset.path;
-                loadPreviewModel(selectedModelPath);
-                viewBtn.disabled = false;
-                modelNameText.textContent = newCard.dataset.model;
-            });
-
+        // Avoid duplicate names
+        if ([...uploadedFiles.values()].some(f => f.name === file.name)) {
+            alert('Model with this name already uploaded.');
             addModelInput.value = '';
+            return;
         }
+
+        const objectURL = URL.createObjectURL(file);
+        uploadedFiles.set(objectURL, file);
+
+        try {
+            await saveModel(modelName, file);
+        } catch (err) {
+            alert('Error saving model. Storage may be full.');
+            console.error(err);
+            addModelInput.value = '';
+            return;
+        }
+
+        addUploadedModelCard(modelName, objectURL);
+        addModelInput.value = '';
     });
 
     viewBtn.addEventListener('click', () => {
         if (!selectedModelPath) return;
-
-        if (uploadedFiles.has(selectedModelPath)) {
-            const file = uploadedFiles.get(selectedModelPath);
-            const reader = new FileReader();
-
-            reader.onload = (e) => {
-                sessionStorage.setItem('uploadedModelData', e.target.result);
-                window.open(`viewer.html?model=uploaded`, '_blank');
-            };
-
-            // This was the line with the bug. It is now corrected.
-            reader.readAsDataURL(file);
-        } else {
-            window.open(`viewer.html?model=${encodeURIComponent(selectedModelPath)}`, '_blank');
-        }
+        window.open(`viewer.html?model=${encodeURIComponent(selectedModelPath)}`, '_blank');
     });
+
+    // Initialize
+    viewBtn.disabled = true;
+    modelNameText.textContent = 'Select a model';
+    setupBuiltInModels();
+    loadUploadedModels();
+
 </script>
+
+
 </body>
 </html>
