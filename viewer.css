@@ -1,15 +1,40 @@
-#modelSelector {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 100;
+body {
+    margin: 0;
+    position: relative;
+    overflow: hidden;
 }
 
+/* Home link */
 #homeLink {
     position: absolute;
     top: 10px;
     left: 10px;
-    z-index: 100;
+    z-index: 10;
     color: white;
     text-decoration: none;
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+/* Background dropdown */
+#backgroundSelector {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    z-index: 10;
+    padding: 6px;
+    border-radius: 6px;
+    background-color: #12113d;
+    color: white;
+    border: none;
+    font-weight: bold;
+    outline: none;
+    cursor: pointer;
+}
+
+#backgroundSelector option {
+    background-color: #232078;
+    color: white;
 }

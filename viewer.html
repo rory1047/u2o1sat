@@ -1,21 +1,24 @@
-<!--AUTHOR:     RORY FARRELL-->
-<!--CREATED DATE:      22/07/2025-->
-<!-- DESCRIPTION:      HTML FOR THE VIEWER PAGE-->
-<!--REVISION HISTORY:
-                       23/07: Added basic file loading functionality from /modules folder-->
-
+<!-- viewer.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>My first three.js app</title>
+    <title>Model Viewer</title>
     <style>
         body { margin: 0; }
     </style>
     <link rel="stylesheet" href="viewer.css">
 </head>
 <body>
-<script type="module" src="/viewer.js"></script>
 <a href="index.html" id="homeLink">Home</a>
+<select id="backgroundSelector">
+    <option value="solid">Solid Color</option>
+    <option value="backgrounds/classroom.jpg">Classroom</option>
+    <option value="backgrounds/moon.jpg">Moon</option>
+    <option value="backgrounds/beach.jpg">Beach</option>
+    <!-- Add more as needed -->
+</select>
+
+<script type="module" src="/viewer.js"></script>
 </body>
 </html>

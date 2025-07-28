@@ -2,13 +2,15 @@ html, body {
     margin: 0;
     height: 100%;
     font-family: Arial, sans-serif;
-    overflow: hidden; /* Prevent page scroll */
+    overflow: hidden;
+    background-color: #0e1a3d; /* Deep blue background */
+    color: #e0eaff;
 }
 
 .container {
     display: flex;
-    height: 100vh; /* Full viewport height */
-    overflow: hidden; /* Prevent container scroll */
+    height: 100vh;
+    overflow: hidden;
 }
 
 .model-list {
@@ -18,30 +20,49 @@ html, body {
     gap: 10px;
     padding: 20px;
     box-sizing: border-box;
-    border-right: 2px solid #333;
-    overflow-y: auto; /* Allow scrolling inside model list only */
-    height: 100vh; /* Make sure it fits full height */
+    border-right: 2px solid #2b5dff;
+    overflow-y: auto;
+    height: 100vh;
 }
 
 .model-card {
     height: 100px;
-    border: 2px solid #333;
+    border: 2px solid #2b5dff;
     border-radius: 12px;
+    background-color: #1b2f6b;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
     cursor: pointer;
+    color: #e0eaff;
+    font-weight: bold;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+.model-card:hover {
+    background-color: #2b5dff;
+    color: #ffffff;
 }
 
 .model-card.empty {
-    background-color: #eee;
+    background-color: #3a4c7a;
+    border-style: dashed;
+    color: #a0b4d4;
     pointer-events: none;
 }
 
 .model-card.add-model {
     font-weight: bold;
     font-size: 18px;
+    background-color: #2b5dff;
+    color: white;
+    border: 2px dashed #5c8bff;
+}
+
+.model-card.add-model:hover {
+    background-color: #1f48cc;
 }
 
 .preview-area {
@@ -50,7 +71,9 @@ html, body {
     flex-direction: column;
     padding: 20px;
     box-sizing: border-box;
-    height: 100vh; /* Full height */
+    height: 100vh;
+    background-color: #14244d;
+    border-left: 2px solid #2b5dff;
 }
 
 #preview {
@@ -58,7 +81,6 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* Remove margin-bottom to avoid overflow */
     margin-bottom: 0;
 }
 
@@ -66,28 +88,53 @@ html, body {
     font-weight: bold;
     font-size: 18px;
     margin-bottom: 10px;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
+    color: #e0eaff;
 }
 
 #previewCanvas {
     flex-grow: 1;
     width: 100%;
     border-radius: 10px;
-    background-color: #f0f0f0;
+    background-color: #1c2e5c;
+    border: 1px solid #2b5dff;
     display: block;
 }
 
 #view-btn {
-    margin-top: 10px; /* Reduced margin */
+    margin-top: 10px;
     padding: 10px;
     font-size: 16px;
     border-radius: 10px;
-    border: 2px solid #333;
+    border: 2px solid #2b5dff;
+    background-color: #2b5dff;
+    color: white;
     cursor: pointer;
-    flex-shrink: 0; /* Button doesn't shrink */
+    flex-shrink: 0;
+    transition: background-color 0.3s ease;
+}
+
+#view-btn:hover {
+    background-color: #1f48cc;
 }
 
 #view-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    background-color: #5c8bff;
+}
+
+/* Optional: Styling for the remove button */
+button.remove {
+    background: rgba(255, 0, 0, 0.8);
+    border: none;
+    color: white;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-size: 14px;
 }

@@ -119,3 +119,28 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     console.log("Window resized: updated camera and renderer");
 });
+
+// Add after scene setup
+const backgroundSelector = document.getElementById('backgroundSelector');
+
+function setBackground(option) {
+    if (option === 'solid') {
+        scene.background = new THREE.Color('#12113d');
+    } else {
+        new THREE.TextureLoader().load(option, (texture) => {
+            scene.background = texture;
+        }, undefined, (err) => {
+            console.error("Error loading background texture:", err);
+        });
+    }
+}
+
+// Initial background
+setBackground('solid');
+
+// Listener for dropdown
+if (backgroundSelector) {
+    backgroundSelector.addEventListener('change', (e) => {
+        setBackground(e.target.value);
+    });
+}
