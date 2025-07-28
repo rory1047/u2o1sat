@@ -1,10 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Model Viewer</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<a href="viewer.html" id="viewLink">Open Viewer</a>
+<div class="container">
+    <div class="model-list">
+        <!-- Models go here -->
+        <div class="model-card" data-model="Shiba" data-path="models/shiba.glb">Shiba</div>
+        <div class="model-card" data-model="Crab" data-path="models/crab.glb">Crab</div>
+
+        <!-- More empty slots -->
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+        <div class="model-card empty"></div>
+
+        <!-- Add Model Button -->
+        <div class="model-card add-model">+<br/>Add Model</div>
+    </div>
+
+    <div class="preview-area">
+        <div id="preview">
+            <p>Select a model to preview it here.</p>
+        </div>
+        <button id="view-btn" disabled>View Model</button>
+    </div>
+</div>
+
+<script>
+    const modelCards = document.querySelectorAll('.model-card:not(.empty):not(.add-model)');
+    const preview = document.getElementById('preview');
+    const viewBtn = document.getElementById('view-btn');
+
+    let selectedModelPath = null;
+    let selectedModelName = null;
+
+    modelCards.forEach(card => {
+        card.addEventListener('click', () => {
+            selectedModelPath = card.dataset.path;
+            selectedModelName = card.dataset.model;
+            preview.innerHTML = `<h2>${selectedModelName}</h2><p>Model Preview</p>`;
+            viewBtn.disabled = false;
+        });
+    });
+
+    viewBtn.addEventListener('click', () => {
+        if (selectedModelPath) {
+            // Pass model path via query param
+            window.open(`viewer.html?model=${encodeURIComponent(selectedModelPath)}`, '_blank');
+        }
+    });
+</script>
+
 </body>
 </html>

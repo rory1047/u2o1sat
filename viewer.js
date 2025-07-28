@@ -1,14 +1,6 @@
-// <!--AUTHOR:     RORY FARRELL-->
-// <!--CREATED DATE:      22/07/2025-->
-// <!-- DESCRIPTION:      HTML FOR THE VIEWER PAGE-->
-// <!--REVISION HISTORY:
-//                        23/07: Added basic file loading functionality from /modules folder-->
-
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-
-
 
 const loader = new GLTFLoader();
 
@@ -25,11 +17,9 @@ controls.dampeningFactor = 0.05;
 
 let model;
 
-const selector = document.getElementById('modelSelector');
-
 function loadModel(path) {
     if (model) {
-        scene.remove(model); // remove old model
+        scene.remove(model);
     }
 
     loader.load(
@@ -47,16 +37,16 @@ function loadModel(path) {
     );
 }
 
-// Initial load
-loadModel(selector.value);
+// Load from URL param
+const urlParams = new URLSearchParams(window.location.search);
+const modelPath = urlParams.get('model');
+if (modelPath) {
+    loadModel(modelPath);
+} else {
+    console.error('No model specified in the URL.');
+}
 
-// Change handler
-selector.addEventListener('change', (event) => {
-    loadModel(event.target.value);
-});
-
-
-camera.position.z=2;
+camera.position.z = 2;
 
 function animate() {
     controls.update();
