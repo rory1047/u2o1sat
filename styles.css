@@ -1,30 +1,29 @@
-* {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
-body {
+html, body {
     margin: 0;
-    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Prevent page scroll */
 }
 
 .container {
     display: flex;
-    padding: 20px;
-    gap: 20px;
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent container scroll */
 }
 
 .model-list {
+    width: 50%;
     display: grid;
-    grid-template-columns: repeat(4, 100px);
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 10px;
-    max-height: 500px;
-    overflow-y: auto;
-    padding-right: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+    border-right: 2px solid #333;
+    overflow-y: auto; /* Allow scrolling inside model list only */
+    height: 100vh; /* Make sure it fits full height */
 }
 
 .model-card {
-    width: 100px;
     height: 100px;
     border: 2px solid #333;
     border-radius: 12px;
@@ -35,52 +34,60 @@ body {
     cursor: pointer;
 }
 
-.model-card.add-model {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
+.model-card.empty {
+    background-color: #eee;
+    pointer-events: none;
 }
 
-.model-card.empty {
-    background-color: #f0f0f0;
-    cursor: default;
+.model-card.add-model {
+    font-weight: bold;
+    font-size: 18px;
 }
 
 .preview-area {
-    flex: 1;
+    width: 50%;
     display: flex;
     flex-direction: column;
-    border: 2px solid #333;
-    border-radius: 16px;
     padding: 20px;
-    height: 100%;
-    min-width: 300px;
+    box-sizing: border-box;
+    height: 100vh; /* Full height */
 }
 
 #preview {
     flex: 1;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Remove margin-bottom to avoid overflow */
+    margin-bottom: 0;
+}
+
+#model-name {
+    font-weight: bold;
     font-size: 18px;
-    padding: 10px;
+    margin-bottom: 10px;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+#previewCanvas {
+    flex-grow: 1;
+    width: 100%;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    display: block;
 }
 
 #view-btn {
-    margin-top: 20px;
+    margin-top: 10px; /* Reduced margin */
     padding: 10px;
     font-size: 16px;
-    cursor: pointer;
     border-radius: 10px;
     border: 2px solid #333;
+    cursor: pointer;
+    flex-shrink: 0; /* Button doesn't shrink */
 }
 
 #view-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
-#previewCanvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-    background: #f0f0f0;
-}
-

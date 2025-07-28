@@ -94,22 +94,13 @@
 <body>
 <div class="container">
     <div class="model-list">
-        <!-- Add your models here -->
         <div class="model-card" data-model="Shiba" data-path="models/shiba.glb">Shiba</div>
         <div class="model-card" data-model="Crab" data-path="models/crab.glb">Crab</div>
 
-        <!-- Empty placeholders -->
-        <div class="model-card empty"></div>
-        <div class="model-card empty"></div>
-        <div class="model-card empty"></div>
-        <div class="model-card empty"></div>
-        <div class="model-card empty"></div>
-        <div class="model-card empty"></div>
-        <div class="model-card empty"></div>
-        <div class="model-card empty"></div>
+        <!-- Format for empty card <div class="model-card empty"></div> -->
 
-        <!-- Add model button -->
         <div class="model-card add-model">+<br/>Add Model</div>
+        <input type="file" id="addModelInput" accept=".glb" style="display: none;" />
     </div>
 
     <div class="preview-area">
@@ -121,20 +112,22 @@
     </div>
 </div>
 
-<!-- Three.js preview logic -->
 <script type="module" src="preview.js"></script>
 
-<!-- Main index logic -->
 <script type="module">
     import { loadPreviewModel } from './preview.js';
 
-    const modelCards = document.querySelectorAll('.model-card:not(.empty):not(.add-model)');
     const viewBtn = document.getElementById('view-btn');
     const modelNameText = document.getElementById('model-name');
+    const addModelBtn = document.querySelector('.add-model');
+    const addModelInput = document.getElementById('addModelInput');
+    const modelList = document.querySelector('.model-list');
 
+    const uploadedFiles = new Map();
     let selectedModelPath = null;
 
-    modelCards.forEach(card => {
+    // Attach click listeners to pre-existing models
+    document.querySelectorAll('.model-card:not(.empty):not(.add-model)').forEach(card => {
         card.addEventListener('click', () => {
             selectedModelPath = card.dataset.path;
             loadPreviewModel(selectedModelPath);
@@ -143,8 +136,51 @@
         });
     });
 
+    addModelBtn.addEventListener('click', () => {
+        addModelInput.click();
+    });
+
+    addModelInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const objectURL = URL.createObjectURL(file);
+            const modelName = file.name.replace(/\.glb$/, '');
+            uploadedFiles.set(objectURL, file);
+
+            const newCard = document.createElement('div');
+            newCard.classList.add('model-card');
+            newCard.dataset.model = modelName;
+            newCard.dataset.path = objectURL;
+            newCard.textContent = modelName;
+
+            modelList.insertBefore(newCard, addModelBtn);
+
+            newCard.addEventListener('click', () => {
+                selectedModelPath = newCard.dataset.path;
+                loadPreviewModel(selectedModelPath);
+                viewBtn.disabled = false;
+                modelNameText.textContent = newCard.dataset.model;
+            });
+
+            addModelInput.value = '';
+        }
+    });
+
     viewBtn.addEventListener('click', () => {
-        if (selectedModelPath) {
+        if (!selectedModelPath) return;
+
+        if (uploadedFiles.has(selectedModelPath)) {
+            const file = uploadedFiles.get(selectedModelPath);
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                sessionStorage.setItem('uploadedModelData', e.target.result);
+                window.open(`viewer.html?model=uploaded`, '_blank');
+            };
+
+            // This was the line with the bug. It is now corrected.
+            reader.readAsDataURL(file);
+        } else {
             window.open(`viewer.html?model=${encodeURIComponent(selectedModelPath)}`, '_blank');
         }
     });

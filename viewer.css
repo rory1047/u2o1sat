@@ -1,15 +1,92 @@
-#modelSelector {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 100;
+html, body {
+    margin: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Prevent page scroll */
 }
 
-#homeLink {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 100;
-    color: white;
-    text-decoration: none;
+.container {
+    display: flex;
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent container scroll */
+}
+
+.model-list {
+    width: 50%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+    border-right: 2px solid #333;
+    overflow-y: auto; /* Allow scrolling inside model list only */
+    height: 100vh; /* Make sure it fits full height */
+}
+
+.model-card {
+    height: 100px;
+    border: 2px solid #333;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+.model-card.empty {
+    background-color: #eee;
+    pointer-events: none;
+}
+
+.model-card.add-model {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.preview-area {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    height: 100vh; /* Full height */
+}
+
+#preview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+#model-name {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+#previewCanvas {
+    flex-grow: 1;
+    width: 100%;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    display: block;
+}
+
+#view-btn {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 2px solid #333;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+#view-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
