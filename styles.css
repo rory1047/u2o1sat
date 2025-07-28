@@ -77,3 +77,10 @@ body {
     opacity: 0.5;
     cursor: not-allowed;
 }
+#previewCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #f0f0f0;
+}
+
