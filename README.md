@@ -8,7 +8,7 @@ Git clone to your desired location
 
 ## Running
 open cmd and run it the root directory:
-'''bash
+```bash
 npm run dev
-'''
+```
 Then press on the link that appears in the terminal
