@@ -31,7 +31,7 @@
 
 <script type="module">
     import { saveModel, getAllModels, deleteModel } from './db.js';
-    import { loadPreviewModel } from './preview.js'; // your preview code
+    import { loadPreviewModel } from './preview.js';
 
     const viewBtn = document.getElementById('view-btn');
     const modelNameText = document.getElementById('model-name');
@@ -78,8 +78,8 @@
 
             removeBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-
                 const modelToDelete = card.dataset.model;
+
                 if (!modelToDelete) {
                     alert('Cannot identify model to delete.');
                     return;
@@ -105,7 +105,7 @@
                     selectedModelName = null;
                     viewBtn.disabled = true;
                     modelNameText.textContent = 'Select a model';
-                    loadPreviewModel(null); // Clear preview
+                    loadPreviewModel(null);
                 }
             });
         }
@@ -124,7 +124,6 @@
         card.dataset.path = objectURL;
         card.textContent = name;
         setupModelCard(card, true);
-
         modelList.insertBefore(card, addModelBtn);
     }
 
@@ -149,11 +148,26 @@
         const file = event.target.files[0];
         if (!file) return;
 
-        const modelName = file.name.replace(/\.[^/.]+$/, "");
+        const extension = file.name.split('.').pop().toLowerCase();
+        if (!['glb', 'gltf'].includes(extension)) {
+            alert('Only .glb or .gltf files are supported.');
+            addModelInput.value = '';
+            return;
+        }
 
-        // Avoid duplicate names
-        if ([...uploadedFiles.values()].some(f => f.name === file.name)) {
-            alert('Model with this name already uploaded.');
+        const suggestedName = file.name.replace(/\.[^/.]+$/, '');
+        let modelName = prompt('Enter a name for your model:', suggestedName);
+
+        if (!modelName) {
+            alert('Import cancelled: no name provided.');
+            addModelInput.value = '';
+            return;
+        }
+
+        modelName = modelName.trim();
+        const existingNames = new Set([...uploadedFiles.values()].map(f => f.name.replace(/\.[^/.]+$/, '')));
+        if (existingNames.has(modelName)) {
+            alert('A model with that name already exists.');
             addModelInput.value = '';
             return;
         }
@@ -185,6 +199,7 @@
     setupBuiltInModels();
     loadUploadedModels();
 </script>
+
 
 
 </body>
