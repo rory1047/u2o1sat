@@ -1,51 +1,83 @@
+<!--AUTHOR:          Rory Farrell -->
+<!--DATE CREATED:    23/07/2025-->
+<!--DESCRIPTION:     HTML for model select page-->
+<!--REVISION HISTORY:
+    1.5: Added model select screen and model selection functionality
+    1.6: Added model preview
+    1.7: Added file uploading feature for gltf/glb files
+    1.8: Fixed bugs with file uploading and added custom file deletion
+    1.9: Polished UI
+    1.10: Added model naming and file type error handling
+    Added Covid: Added Covid
+    1.11: Added internal documentation
+-->
+
+
+<!-- Page metadata and resource links -->
 <!DOCTYPE html>
-<html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Model Selector</title>
+    <!-- Link to external CSS styles -->
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
+<!-- Container for model selection and preview areas -->
 <div class="container">
+
+    <!-- Section: List of available models -->
     <div class="model-list" id="modelList">
+        <!-- Predefined model options -->
         <div class="model-card" data-model="Shiba" data-path="models/shiba.glb">Shiba</div>
         <div class="model-card" data-model="Crab" data-path="models/crab.glb">Crab</div>
         <div class="model-card" data-model="Lungs" data-path="models/lungs.glb">Lungs</div>
         <div class="model-card" data-model="Lungs" data-path="models/covid.glb">Covid</div>
 
-        <!-- Add model button -->
+        <!-- Upload button to add custom model -->
         <button class="model-card add-model" id="add-model-btn">+<br/>Add Model</button>
+        <!-- Hidden file input for model uploading -->
         <input type="file" id="add-model-input" accept=".glb,.gltf" style="display:none" />
     </div>
 
+    <!-- Section: Model preview and action -->
     <div class="preview-area">
         <div id="preview">
             <div id="model-name">Select a model</div>
+            <!-- Canvas used to render 3D model preview -->
             <canvas id="previewCanvas" width="400" height="300"></canvas>
         </div>
+        <!-- Button to open selected model in viewer -->
         <button id="view-btn" disabled>View Model</button>
     </div>
 </div>
 
+
 <script type="module">
+    // Import utility functions for model handling
     import { saveModel, getAllModels, deleteModel } from './db.js';
     import { loadPreviewModel } from './preview.js';
 
+    // DOM references
     const viewBtn = document.getElementById('view-btn');
     const modelNameText = document.getElementById('model-name');
     const addModelBtn = document.getElementById('add-model-btn');
     const addModelInput = document.getElementById('add-model-input');
     const modelList = document.getElementById('modelList');
 
+    // Track uploaded files
     const uploadedFiles = new Map();
     let selectedModelPath = null;
     let selectedModelName = null;
 
+    // Utility: Creates a small red "X" button for removing uploaded models
     function createRemoveButton() {
         const btn = document.createElement('button');
         btn.textContent = '✕';
         btn.title = 'Remove model';
+        // Button styling for positioning and appearance
         btn.style.position = 'absolute';
         btn.style.top = '4px';
         btn.style.right = '4px';
@@ -60,9 +92,11 @@
         return btn;
     }
 
+    // Attach selection and optional removal logic to a model card
     function setupModelCard(card, isUploaded = false) {
         card.style.position = 'relative';
 
+        // Handle card click: load preview and enable "View Model"
         card.addEventListener('click', () => {
             selectedModelPath = card.dataset.path;
             selectedModelName = card.dataset.model;
@@ -71,12 +105,14 @@
             modelNameText.textContent = selectedModelName;
         });
 
+        // If model is user-uploaded, append remove button and its functionality
         if (isUploaded) {
             const removeBtn = createRemoveButton();
             card.appendChild(removeBtn);
 
             removeBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // Prevent triggering card click
+
                 const modelToDelete = card.dataset.model;
 
                 if (!modelToDelete) {
@@ -96,9 +132,11 @@
                     return;
                 }
 
+                // Remove from memory and UI
                 uploadedFiles.delete(card.dataset.path);
                 modelList.removeChild(card);
 
+                // Reset preview if the deleted model was selected
                 if (selectedModelName === modelToDelete) {
                     selectedModelPath = null;
                     selectedModelName = null;
@@ -110,12 +148,14 @@
         }
     }
 
+    // Initialize default built-in models
     function setupBuiltInModels() {
         document.querySelectorAll('.model-card:not(.empty):not(.add-model)').forEach(card => {
             setupModelCard(card, false);
         });
     }
 
+    // Add a card for an uploaded model
     function addUploadedModelCard(name, objectURL) {
         const card = document.createElement('div');
         card.classList.add('model-card');
@@ -126,6 +166,7 @@
         modelList.insertBefore(card, addModelBtn);
     }
 
+    // Load previously saved models from IndexedDB and display them
     async function loadUploadedModels() {
         try {
             const savedModels = await getAllModels();
@@ -139,10 +180,12 @@
         }
     }
 
+    // Event: Open file input when user clicks "+ Add Model"
     addModelBtn.addEventListener('click', () => {
         addModelInput.click();
     });
 
+    // Event: Handle file selection and validation
     addModelInput.addEventListener('change', async (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -154,6 +197,7 @@
             return;
         }
 
+        // Suggest model name based on file name
         const suggestedName = file.name.replace(/\.[^/.]+$/, '');
         let modelName = prompt('Enter a name for your model:', suggestedName);
 
@@ -164,6 +208,8 @@
         }
 
         modelName = modelName.trim();
+
+        // Check for name collision
         const existingNames = new Set([...uploadedFiles.values()].map(f => f.name.replace(/\.[^/.]+$/, '')));
         if (existingNames.has(modelName)) {
             alert('A model with that name already exists.');
@@ -187,19 +233,17 @@
         addModelInput.value = '';
     });
 
+    // Event: Open selected model in new viewer window
     viewBtn.addEventListener('click', () => {
         if (!selectedModelPath) return;
         window.open(`viewer.html?model=${encodeURIComponent(selectedModelPath)}`, '_blank');
     });
 
-    // Initialize
+    // Initial setup on page load
     viewBtn.disabled = true;
     modelNameText.textContent = 'Select a model';
     setupBuiltInModels();
     loadUploadedModels();
 </script>
-
-
-
 </body>
 </html>

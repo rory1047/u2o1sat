@@ -11,4 +11,5 @@ open cmd and run it the root directory:
 ```bash
 npm run dev
 ```
-Then press on the link that appears in the terminal
+Then press on the link that appears in the terminal or type ```o``` then press enter
+The default URL should be ```https://localhost:5173/```

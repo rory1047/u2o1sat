@@ -1,24 +1,41 @@
-<!-- viewer.html -->
+<!--
+AUTHOR:             Rory Farrell
+DATE CREATED:       23/07/2025
+DESCRIPTION:        HTML for viewer page
+REVISION HISTORY:
+                    1.9: Added background selection
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <title>Model Viewer</title>
+
+    <!-- Remove browser default spacing -->
     <style>
         body { margin: 0; }
     </style>
+
+    <!-- External stylesheet for layout and styling -->
     <link rel="stylesheet" href="viewer.css">
 </head>
 <body>
+
+<!-- Link back to model selection/index page -->
 <a href="index.html" id="homeLink">Home</a>
+
+<!-- Dropdown to allow user to change scene background -->
 <select id="backgroundSelector">
     <option value="solid">Solid Color</option>
     <option value="backgrounds/classroom.jpg">Classroom</option>
     <option value="backgrounds/moon.jpg">Moon</option>
     <option value="backgrounds/beach.jpg">Beach</option>
-    <!-- Add more as needed -->
+    <!-- Add more backgrounds here as needed -->
 </select>
 
+<!-- Import main viewer logic (3D rendering, model loading, etc.) -->
 <script type="module" src="/viewer.js"></script>
+
 </body>
 </html>
